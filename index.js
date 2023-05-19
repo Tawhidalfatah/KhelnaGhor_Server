@@ -24,7 +24,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    client.connect();
 
     // Send a ping to confirm a successful connection
     const toyCollection = client.db("toyMarket").collection("toys");
@@ -32,6 +32,12 @@ async function run() {
     app.get("/alltoys", async (req, res) => {
       const result = await toyCollection.find().toArray();
 
+      res.send(result);
+    });
+
+    app.post("/addtoy", async (req, res) => {
+      const body = req.body;
+      const result = await toyCollection.insertOne(body);
       res.send(result);
     });
 

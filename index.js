@@ -19,13 +19,23 @@ const client = new MongoClient(uri, {
     strict: true,
     deprecationErrors: true,
   },
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  maxPoolSize: 10,
 });
 
+app.get("/", (req, res) => {
+  res.send({ message: "Server is running" });
+});
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    client.connect();
-
+    client.connect((err) => {
+      if (err) {
+        console.error(err);
+        return;
+      }
+    });
     // Send a ping to confirm a successful connection
     const toyCollection = client.db("toyMarket").collection("toys");
     const indexKeys = { toyname: 1 }; // Replace field1 and field2 with your actual field names
@@ -73,6 +83,14 @@ async function run() {
       res.send(result);
     });
 
+    app.delete("/toy/:id", async (req, res) => {
+      const id = req.params.id;
+
+      const query = { _id: new ObjectId(id) };
+      const result = await toyCollection.deleteOne(query);
+      res.send(result);
+    });
+
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
     );
@@ -82,10 +100,6 @@ async function run() {
   }
 }
 run().catch(console.dir);
-
-app.get("/", (req, res) => {
-  res.send({ message: "Server is running" });
-});
 
 app.listen(port, () => {
   console.log("Server is running on port:", port);

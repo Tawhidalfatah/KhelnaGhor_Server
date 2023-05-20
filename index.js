@@ -28,9 +28,16 @@ async function run() {
 
     // Send a ping to confirm a successful connection
     const toyCollection = client.db("toyMarket").collection("toys");
+    const indexKeys = { toyname: 1 }; // Replace field1 and field2 with your actual field names
+    const indexOptions = { name: "toyName" }; // Replace index_name with the desired index name
+    const result = await toyCollection.createIndex(indexKeys, indexOptions);
 
     app.get("/alltoys", async (req, res) => {
-      const result = await toyCollection.find().toArray();
+      let query = {};
+      if (req.query.toyname) {
+        query = { toyname: { $regex: req.query.toyname, $options: "i" } };
+      }
+      const result = await toyCollection.find(query).limit(20).toArray();
 
       res.send(result);
     });

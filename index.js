@@ -42,6 +42,15 @@ async function run() {
       res.send(result);
     });
 
+    app.get("/subcategory", async (req, res) => {
+      let query = {};
+      if (req.query.subcategory) {
+        query = { subcategory: req.query.subcategory };
+      }
+      const result = await toyCollection.find(query).toArray();
+      res.send(result);
+    });
+
     app.get("/toy/:id", async (req, res) => {
       const id = req.params.id;
 
